@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="icon" href="https://thumbnailer.mixcloud.com/unsafe/50x50/extaudio/5/0/d/5/58dd-4696-4361-a3be-917bb6a33566">
+
+	<title>Title</title>
+
+	<script src="https://kit.fontawesome.com/93a1e10f90.js" crossorigin="anonymous"></script>
+
+	<style>
+		@import 'https://fonts.googleapis.com/css?family=Open+Sans:300,400';
+		body, .player .head .front, .player .head .infos, .player .timeline .volume, .player .timeline .controllers, .player .timeline .controllers .back, .player .timeline .controllers .play, .player .timeline .controllers .forward, .pause, .previous-episode, .next-episode {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		html {
+			height: 100%;
+		}
+		body {
+			font-family: 'Montserrat', sans-serif;
+			width: 99%;
+			min-height: 95%;
+			background: linear-gradient(141deg, #0c5b5f 0%, rgba(0, 212, 153, 0.77) 75%);
+		}
+		.infos i span {
+			font-family: 'Montserrat', sans-serif;
+		}
+		*, *:before, *:after {
+			box-sizing: border-box;
+		}
+		.rotation {
+			display: block;
+			width: 300px;
+			height: 300px;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			margin: -150px -150px;
+			border-radius: 50%;
+			background-color: #fff;
+			opacity: 0.3;
+			z-index: -1;
+			animation: 2s girandomt infinite forwards linear;
+		}
+		.player {
+			border-radius: 6px;
+			background-color: white;
+			width: 1000px;
+			min-height: 200px;
+			box-shadow: 0px 5px 20px 2px rgba(0, 0, 0, 0.2);
+			overflow: hidden;
+		}
+		.player .head {
+			padding: 15px;
+			color: white;
+			text-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
+			height: auto;
+			width: 100%;
+			position: relative;
+			overflow: hidden;
+		}
+		.player .head .front {
+			position: relative;
+			height: 100%;
+			justify-content: space-around;
+		}
+		.player .head .back {
+			height: 110%;
+			width: 110%;
+			top: -10px;
+			left: -10px;
+			position: absolute;
+			background-position: center;
+			background-size: cover;
+			background-image: url('https://thumbnailer.mixcloud.com/unsafe/500x500/extaudio/5/0/d/5/58dd-4696-4361-a3be-917bb6a33566');
+			-webkit-filter: blur(5px);
+			filter: blur(5px);
+		}
+		.player .head .avatar {
+			width: 300px;
+			height: 300px;
+			overflow: hidden;
+			border-radius: 50%;
+			box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+		}
+		.player .head .avatar img {
+			width: 100%;
+			height: 100%;
+		}
+		.player .head .infos {
+			justify-content: space-around;
+			flex-direction: column;
+			height: inherit;
+			align-items: baseline;
+		}
+		.player .head .tags span {
+			border-radius: 3px;
+			padding: 2px 11px;
+			margin: 1px 2px;
+			background-color: #15a58b;
+			font-weight: bold;
+		}
+		.player .head .titulo_song {
+			font-size: 30px;
+			text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.75);
+		}
+		.player .head .duracao_song {
+			font-size: 15px;
+			color: white;
+			margin-bottom: 8px;
+			text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.75);
+		}
+		.player .timeline {
+			height: auto;
+			width: 100%;
+			position: relative;
+			display: flex;
+			justify-content: center;
+			flex-direction: column;
+		}
+		.player .timeline .volume {
+			flex-direction: row;
+		}
+		.player .timeline .controllers.active .play, .pause {
+			box-shadow: 0px 0px 10px 2px rgba(30, 177, 150, 0.1);
+			animation: 3s pulseshadowplay infinite both;
+		}
+		.player .timeline .controllers .back, .player .timeline .controllers .play, .player .timeline .controllers .forward, .pause, .previous-episode, .next-episode, .volume {
+			font-size: 16px;
+			margin: 10px;
+			color: #4a4a4a;
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			border: 1px solid transparent;
+			cursor: pointer;
+		}
+		.player .timeline .controllers .play, .pause {
+			transition: all 0.3s ease-in-out;
+		}
+		.player .timeline .controllers .play:hover, .pause:hover {
+			box-shadow: 0px 0px 10px 2px rgba(30, 177, 150, 0.38);
+			border: 2px solid rgba(143, 208, 196, 0.54) !important;
+		}
+		.player .timeline .controllers .previous-episode::after {
+			content: '\f048';
+			font-family: 'FontAwesome';
+			margin-left: 5px;
+		}
+		.player .timeline .controllers .back::after {
+			content: '\f04a';
+			font-family: 'FontAwesome';
+			margin-right: 5px;
+		}
+		.player .timeline .controllers .play::after {
+			content: '\f04b';
+			font-family: 'FontAwesome';
+			margin-left: 5px;
+		}
+		.player .timeline .controllers .pause::after {
+			content: '\f04c';
+			font-family: 'FontAwesome';
+			margin-left: 5px;
+		}
+		.player .timeline .controllers .forward::after {
+			content: '\f04e';
+			font-family: 'FontAwesome';
+			margin-left: 5px;
+		}
+		.player .timeline .controllers .next-episode::after {
+			content: '\f051';
+			font-family: 'FontAwesome';
+			margin-left: 5px;
+		}
+		.player .timeline .controllers .volume-none::after {
+			content: '\f026';
+			font-family: 'FontAwesome';
+			margin-left: 5px;
+		}
+		.player .timeline .controllers .volume-muted::after {
+			content: '\f6a9';
+			font-family: 'FontAwesome';
+			margin-left: 5px;
+		}
+		.player .timeline .controllers .volume-min::after {
+			content: '\f027';
+			font-family: 'FontAwesome';
+			margin-left: 5px;
+		}
+		.player .timeline .controllers .volume-max::after {
+			content: '\f028';
+			font-family: 'FontAwesome';
+			margin-left: 5px;
+		}
+		.player .timeline .soundline {
+			width: 100%;
+			height: 6px;
+			position: relative;
+			background: #f3f3f3;
+			border-radius: 2px;
+			overflow: hidden;
+		}
+		.player .timeline .soundline::after {
+			display: block;
+			position: absolute;
+			content: '';
+			top: 0;
+			left: 0;
+			width: var(--width);
+			height: 100%;
+			background: #6ce59c;
+			box-shadow: 0px 0px 9px #94ffbf;
+			transition: all 0.4s cubic-bezier(0.07, 0.82, 0.11, 1.02);
+		}
+		.hidden {
+			display: none !important;
+		}
+		@keyframes pulseshadowplay {
+			0% {
+				box-shadow: 0px 0px 10px 2px rgba(30, 177, 150, 0.1);
+			}
+			50% {
+				box-shadow: 0px 0px 50px 2px rgba(30, 177, 150, 0.38);
+			}
+		}
+		@keyframes soundline {
+			0% {
+				width: 0%;
+			}
+			100% {
+				width: 100%;
+			}
+		}
+		@keyframes girandomt {
+			0% {
+				box-shadow: 0px 0px 0px 0px rgba(255, 255, 255, 0.8);
+			}
+			100% {
+				box-shadow: 0px 0px 30px 40px rgba(255, 255, 255, 0.0);
+			}
+		}
+	</style>
+</head>
+<body>
+
+	<div class="player">
+		<div class="head">
+			<div class="back"></div>
+			<div class="front">
+				<div class="avatar"><img src="https://thumbnailer.mixcloud.com/unsafe/500x500/extaudio/5/0/d/5/58dd-4696-4361-a3be-917bb6a33566" /></div>
+				<div class="infos">
+					<div class="titulo_song">Toolroom Radio <span id="episode"></span></div>
+					<div class="duracao_song"><i class="fa fa-clock-o"> <span id="left"></span> / <span id="total_time"></span></i></div>
+				</div>
+			</div>
+		</div>
+		<div class="timeline">
+			<div class="soundline"></div>
+			<div class="controllers active">
+				<div class="previous-episode"></div>
+				<div class="back"></div>
+				<div class="play"></div>
+				<div class="pause hidden"></div>
+				<div class="forward"></div>
+				<div class="next-episode"></div>
+				<div class="volume"></div>
+			</div>
+		</div>
+	</div>
+	<audio preload="metadata"></audio>
+	<div class="rotation"></div>
+
+<script>
+	const playbtn = document.querySelector(".play"),
+	      pausebtn = document.querySelector(".pause"),
+	      forward = document.querySelector(".forward"),
+	      back = document.querySelectorAll(".back")[1],
+	      prev_ep = document.querySelector(".previous-episode"),
+	      next_ep = document.querySelector(".next-episode"),
+	      total_time = document.querySelector("#total_time"),
+	      left_time = document.querySelector("#left"),
+	      audio = document.querySelector("audio"),
+	      episode_el = document.querySelector('#episode'),
+		  timeline = document.querySelector('.soundline'),
+		  volume_el = document.querySelector('.volume');
+
+	const play = () => {
+		audio.play();
+		pausebtn.classList.remove('hidden');
+		playbtn.classList.add('hidden');
+	};
+
+	const pause = () => {
+		audio.pause();
+		playbtn.classList.remove('hidden');
+		pausebtn.classList.add('hidden');
+	};
+
+	const getEpisode = (is_prev = false, is_next = false) => {
+		let episode = +localStorage.getItem('episode') + (is_next === true ? 1 : '') - (is_prev === true ? 1 : '');
+		if (episode > 1) {
+
+		} else {
+			episode = 1;
+			localStorage.setItem('episode', '0001');
+		}
+		return episode.toString().padStart(4, "0");
+	};
+
+	const next_episode = () => {
+		const episode = getEpisode(false, true);
+		audio.src = 'http://toolroomknightsradio.com/radioshow/mk_'+episode+'.m4a';
+		audio.currentTime = 0;
+		audio.load();
+		localStorage.setItem('episode', episode);
+		left_time.innerHTML = "00:00";
+		episode_el.innerHTML = episode;
+		document.title = "Toolroom Radio " + episode;
+		if (playbtn.classList.contains('hidden')) {
+			play();
+		}
+	};
+
+	const prev_episode = () => {
+		const episode = getEpisode(true);
+		audio.src = 'http://toolroomknightsradio.com/radioshow/mk_'+episode+'.m4a';
+		audio.currentTime = 0;
+		audio.load();
+		localStorage.setItem('episode', episode);
+		left_time.innerHTML = "00:00";
+		episode_el.innerHTML = episode;
+		document.title = "Toolroom Radio " + episode;
+		if (playbtn.classList.contains('hidden')) {
+			play();
+		}
+	};
+
+	const changeCurrentTime = () => {
+		const curr = audio.currentTime;
+		/*if (curr === audio.duration) {
+			next_episode();
+		}*/
+		if (curr !== 0) {
+			left_time.innerHTML = Math.floor(curr / 60).toString().padStart(2, "0") + ":" + Math.floor(curr % 60).toString().padStart(2, "0");
+			localStorage.setItem('current_time_' + getEpisode(), curr);
+			timeline.style.setProperty('--width', audio.currentTime / audio.duration * 100 + '%');
+		}
+	};
+
+	const changeVolumeEl = () => {
+		const new_volume = audio.volume;
+		localStorage.setItem('volume', new_volume);
+		if ((new_volume % 1) >= 0.05 && new_volume < 0.33) {
+			volume_el.classList.remove('volume-max', 'volume-min', 'volume-muted');
+			volume_el.classList.add('volume-none');
+		} else if (new_volume > 0.33 && new_volume < 0.66) {
+			volume_el.classList.remove('volume-max', 'volume-none', 'volume-muted');
+			volume_el.classList.add('volume-min');
+		} else if (new_volume > 0.66) {
+			volume_el.classList.remove('volume-min', 'volume-none', 'volume-muted');
+			volume_el.classList.add('volume-max');
+		} else if (new_volume === 0) {
+			volume_el.classList.remove('volume-min', 'volume-none', 'volume-max');
+			volume_el.classList.add('volume-muted');
+		}
+		volume_el.setAttribute('title', new_volume);
+	};
+
+	window.onload = () => {
+		const episode = getEpisode();
+		audio.src = 'http://toolroomknightsradio.com/radioshow/mk_'+episode+'.m4a';
+		episode_el.innerHTML = episode;
+		document.title = "Toolroom Radio " + episode;
+		audio.volume = +localStorage.getItem('volume') ?? 1;
+		changeVolumeEl();
+	};
+
+	audio.onloadedmetadata = () => {
+		const duration = audio.duration;
+		total_time.innerHTML = Math.floor(duration / 60) + ":" + Math.floor(duration % 60);
+
+		if (localStorage.getItem('current_time_' + getEpisode()) != undefined) {
+			audio.currentTime = localStorage.getItem('current_time_' + getEpisode());
+		} else {
+			left_time.innerHTML = "00:00";
+		}
+	};
+
+	playbtn.addEventListener('click', () => {
+		play();
+	});
+
+	pausebtn.addEventListener('click', () => {
+		pause();
+	});
+
+	back.addEventListener('click', () => {
+		audio.currentTime -= 10;
+		changeCurrentTime();
+	});
+
+	forward.addEventListener('click', () => {
+		audio.currentTime += 10;
+		changeCurrentTime();
+	});
+
+	next_ep.addEventListener('click', () => {
+		next_episode();
+	});
+
+	prev_ep.addEventListener('click', () => {
+		prev_episode();
+	});
+
+	document.addEventListener('keyup', event => {
+		event.preventDefault();
+		if (event.code === 'Space') {
+			if (playbtn.classList.contains('hidden')) {
+				pause();
+			} else {
+				play();
+			}
+		}
+		if (event.code === 'ArrowLeft') {
+			audio.currentTime -= 10;
+			changeCurrentTime();
+		}
+		if (event.code === 'ArrowRight') {
+			audio.currentTime += 10;
+			changeCurrentTime();
+		}
+		if (event.code === 'ArrowUp') {
+			if (audio.volume < 1) {
+				audio.volume = +(audio.volume + .05).toFixed(2);
+				localStorage.setItem('volume', audio.volume);
+				changeVolumeEl();
+			}
+		}
+		if (event.code === 'ArrowDown') {
+			audio.volume = +(audio.volume - .05).toFixed(2);
+			localStorage.setItem('volume', audio.volume);
+			changeVolumeEl();
+		}
+	});
+
+	setInterval(() => {
+		changeCurrentTime();
+	}, 500);
+</script>
+
+</body>
+</html>
