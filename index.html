@@ -27,7 +27,7 @@
 
 		body {
 			font-family: 'Montserrat', sans-serif;
-			width: 99%;
+			width: 100%;
 			min-height: 95%;
 			background: linear-gradient(141deg, #0c5b5f 0%, rgba(0, 212, 153, 0.77) 75%);
 		}
@@ -38,16 +38,18 @@
 
 		*, *:before, *:after {
 			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
 		}
 
 		.rotation {
 			display: block;
-			width: 600px;
-			height: 600px;
+			width: 500px;
+			height: 500px;
 			position: absolute;
-			top: 36%;
-			left: 44%;
-			margin: -150px -150px;
+		/ / top: 36 %;
+		/ / left: 44 %;
+		/ / margin: - 150 px - 150 px;
 			border-radius: 50%;
 			background-color: #fff;
 			opacity: 0.3;
@@ -317,184 +319,12 @@
 <audio preload="metadata"></audio>
 <div class="rotation"></div>
 
-<script>
-  const playbtn    = document.querySelector(".play"),
-		pausebtn   = document.querySelector(".pause"),
-		forward    = document.querySelector(".forward"),
-		back       = document.querySelectorAll(".back")[1],
-		prev_ep    = document.querySelector(".previous-episode"),
-		next_ep    = document.querySelector(".next-episode"),
-		total_time = document.querySelector("#total_time"),
-		left_time  = document.querySelector("#left"),
-		audio      = document.querySelector("audio"),
-		episode_el = document.querySelector('#episode'),
-		timeline   = document.querySelector('.soundline'),
-		volume_el  = document.querySelector('.volume');
+<script crossorigin="anonymous"
+        integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ=="
+        src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
-  const play = () => {
-	audio.play();
-	pausebtn.classList.remove('hidden');
-	playbtn.classList.add('hidden');
-  };
-
-  const pause = () => {
-	audio.pause();
-	playbtn.classList.remove('hidden');
-	pausebtn.classList.add('hidden');
-  };
-
-  const getEpisode = (is_prev = false, is_next = false) => {
-	let episode = +localStorage.getItem('episode') + (is_next === true ? 1 : '') - (is_prev === true ? 1 : '');
-	if (episode > 1) {
-
-	} else {
-	  episode = 1;
-	  localStorage.setItem('episode', '0001');
-	}
-	return episode.toString().padStart(4, "0");
-  };
-
-  const next_episode = () => {
-	const episode = getEpisode(false, true);
-	// audio.src = 'http://toolroomknightsradio.com/radioshow/mk_'+episode+'.m4a';
-	audio.src = `/redirect.php?number=${episode}`;
-	audio.currentTime = 0;
-	audio.load();
-	localStorage.setItem('episode', episode);
-	left_time.innerHTML = "00:00";
-	episode_el.innerHTML = episode;
-	document.title = "Toolroom Radio " + episode;
-	if (playbtn.classList.contains('hidden')) {
-	  play();
-	}
-  };
-
-  const prev_episode = () => {
-	const episode = getEpisode(true);
-	audio.src = `/redirect.php?number=${episode}`;
-	audio.currentTime = 0;
-	audio.load();
-	localStorage.setItem('episode', episode);
-	left_time.innerHTML = "00:00";
-	episode_el.innerHTML = episode;
-	document.title = "Toolroom Radio " + episode;
-	if (playbtn.classList.contains('hidden')) {
-	  play();
-	}
-  };
-
-  const changeCurrentTime = () => {
-	const curr = audio.currentTime;
-	/*if (curr === audio.duration) {
-		next_episode();
-	}*/
-	if (curr !== 0) {
-	  left_time.innerHTML = Math.floor(curr / 60).toString().padStart(2, "0") + ":" + Math.floor(curr % 60).toString().padStart(2, "0");
-	  localStorage.setItem('current_time_' + getEpisode(), curr);
-	  timeline.style.setProperty('--width', audio.currentTime / audio.duration * 100 + '%');
-	}
-  };
-
-  const changeVolumeEl = () => {
-	const new_volume = audio.volume;
-	localStorage.setItem('volume', new_volume);
-	if ((new_volume % 1) >= 0.05 && new_volume < 0.33) {
-	  volume_el.classList.remove('volume-max', 'volume-min', 'volume-muted');
-	  volume_el.classList.add('volume-none');
-	} else if (new_volume > 0.33 && new_volume < 0.66) {
-	  volume_el.classList.remove('volume-max', 'volume-none', 'volume-muted');
-	  volume_el.classList.add('volume-min');
-	} else if (new_volume > 0.66) {
-	  volume_el.classList.remove('volume-min', 'volume-none', 'volume-muted');
-	  volume_el.classList.add('volume-max');
-	} else if (new_volume === 0) {
-	  volume_el.classList.remove('volume-min', 'volume-none', 'volume-max');
-	  volume_el.classList.add('volume-muted');
-	}
-	volume_el.setAttribute('title', new_volume);
-  };
-
-  window.onload = () => {
-	const episode = getEpisode();
-	audio.src = `/redirect.php?number=${episode}`;
-	episode_el.innerHTML = episode;
-	document.title = "Toolroom Radio " + episode;
-	audio.volume = +localStorage.getItem('volume') ?? 1;
-	changeVolumeEl();
-  };
-
-  audio.onloadedmetadata = () => {
-	const duration = audio.duration;
-	total_time.innerHTML = Math.floor(duration / 60) + ":" + Math.floor(duration % 60);
-
-	if (localStorage.getItem('current_time_' + getEpisode()) != undefined) {
-	  audio.currentTime = localStorage.getItem('current_time_' + getEpisode());
-	} else {
-	  left_time.innerHTML = "00:00";
-	}
-  };
-
-  playbtn.addEventListener('click', () => {
-	play();
-  });
-
-  pausebtn.addEventListener('click', () => {
-	pause();
-  });
-
-  back.addEventListener('click', () => {
-	audio.currentTime -= 10;
-	changeCurrentTime();
-  });
-
-  forward.addEventListener('click', () => {
-	audio.currentTime += 10;
-	changeCurrentTime();
-  });
-
-  next_ep.addEventListener('click', () => {
-	next_episode();
-  });
-
-  prev_ep.addEventListener('click', () => {
-	prev_episode();
-  });
-
-  document.addEventListener('keyup', event => {
-	event.preventDefault();
-	if (event.code === 'Space') {
-	  if (playbtn.classList.contains('hidden')) {
-		pause();
-	  } else {
-		play();
-	  }
-	}
-	if (event.code === 'ArrowLeft') {
-	  audio.currentTime -= 10;
-	  changeCurrentTime();
-	}
-	if (event.code === 'ArrowRight') {
-	  audio.currentTime += 10;
-	  changeCurrentTime();
-	}
-	if (event.code === 'ArrowUp') {
-	  if (audio.volume < 1) {
-		audio.volume = +(audio.volume + .05).toFixed(2);
-		localStorage.setItem('volume', audio.volume);
-		changeVolumeEl();
-	  }
-	}
-	if (event.code === 'ArrowDown') {
-	  audio.volume = +(audio.volume - .05).toFixed(2);
-	  localStorage.setItem('volume', audio.volume);
-	  changeVolumeEl();
-	}
-  });
-
-  setInterval(() => {
-	changeCurrentTime();
-  }, 500);
-</script>
+<script src="/app.js"></script>
 
 </body>
 </html>
